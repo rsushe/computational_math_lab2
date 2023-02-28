@@ -1,6 +1,6 @@
 from typing import Callable
 
-def solve_equation(equation, derivate_of_equation, interval, accuracy):
+def solve_equation(equation: Callable[[float], float], derivate_of_equation: Callable[[float], float], interval: list[float], accuracy: float):
     a: float = interval[0]
     b: float = interval[1]
 
@@ -15,8 +15,8 @@ def solve_equation(equation, derivate_of_equation, interval, accuracy):
         print("q > 1, следовательно не выполняется достаточное условие сходимости метода, следовательно метод не сойдется к ответу")
         return
 
-    print(f"lambda = {round(l, 5)}, q = {round(q, 5)}")
-    print(f"phi(x) = x + f(x)*{round(l, 5)}")
+    print("lambda = {}, q = {}".format(round(l, 5), round(q, 5)))
+    print("phi(x) = x + f(x) * {}".format(round(l, 5)))
 
     if q > 0.5:
         check = lambda accuracy, xi, xi_prev, q: abs(xi - xi_prev) > accuracy

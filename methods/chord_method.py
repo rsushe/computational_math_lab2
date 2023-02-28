@@ -1,11 +1,13 @@
-def solve_equation(equation, interval, accuracy):
-    a = interval[0]
-    b = interval[1]
+from typing import Callable
 
-    current_x = (a * equation(b) - b * equation(a)) / (equation(b) - equation(a))
+def solve_equation(equation: Callable[[float], float], interval: list[float], accuracy: float):
+    a: float = interval[0]
+    b: float = interval[1]
 
-    current_iteration = 1
-    max_iteration = 1000
+    current_x: float = (a * equation(b) - b * equation(a)) / (equation(b) - equation(a))
+
+    current_iteration: int = 1
+    max_iteration: int = 1000
 
     while abs(equation(current_x)) > accuracy and current_iteration < max_iteration:
 
