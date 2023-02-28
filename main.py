@@ -1,4 +1,5 @@
 import input_reader
+import graph_drawing
 from methods import chord_method, secant_method, simple_iteration_method
 
 
@@ -16,6 +17,11 @@ if __name__ == "__main__":
             simple_iteration_method.solve_equation(equation=equation, derivate_of_equation=derivative_of_equation, interval=interval, accuracy=accuracy)
         elif method_choice == 4:
             simple_iteration_method.solve_system_of_equations(system_of_equation_with_expressed_x=derivative_of_equation, interval=interval, accuracy=accuracy)
+
+        if type(equation) is not list:
+            graph_drawing.plot_function(equation, -10, 10, -20, 10, 1)
+        else:
+            graph_drawing.plot_system(equation[0], equation[1])
 
     except Exception as e:
         print(str(e))

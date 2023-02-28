@@ -48,8 +48,8 @@ def read_single_equation():
 
 
 def read_system_of_equation():
-    print("1: {}".format(system_of_equations.system_of_equations[0]))
-    print("2: {}".format(system_of_equations.system_of_equations[1]))
+    print("1: {}".format(system_of_equations.system_of_equations_string[0]))
+    print("2: {}".format(system_of_equations.system_of_equations_string[1]))
 
     user_choice: int = read_user_choice([1, 2], "Введите номер желаемого выражения: ")
 
