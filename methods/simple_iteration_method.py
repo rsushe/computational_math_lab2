@@ -1,19 +1,20 @@
 from typing import Callable
+import derivative
 
-def solve_equation(equation: Callable[[float], float], derivate_of_equation: Callable[[float], float], interval: list[float], accuracy: float):
+def solve_equation(equation: Callable[[float], float], interval: list[float], accuracy: float):
     a: float = interval[0]
     b: float = interval[1]
 
-    l: float = find_lambda(derivate_of_equation, a, b)
+    l: float = find_lambda(equation, a, b)
 
     phi: Callable[[float], float] = lambda x: x + equation(x) * l
-    derivate_of_phi: Callable[[float], float] = lambda x: 1 + derivate_of_equation(x) * x
+    derivate_of_phi: Callable[[float], float] = lambda x: 1 + derivative.nth(equation, 1, x) * l
 
     q: float = find_q(derivate_of_phi, a, b)
 
     if q >= 1:
-        print("q > 1, следовательно не выполняется достаточное условие сходимости метода, следовательно метод не сойдется к ответу")
-        return
+        print("q > 1, следовательно не выполняется достаточное условие сходимости и метод не сойдется к ответу")
+        return None
 
     print("lambda = {}, q = {}".format(round(l, 5), round(q, 5)))
     print("phi(x) = x + f(x) * {}".format(round(l, 5)))
@@ -29,18 +30,26 @@ def solve_equation(equation: Callable[[float], float], derivate_of_equation: Cal
     xi: float = x1
     xi_prev: float = x0
 
+    iterations: int = 0
+
     while check(accuracy, xi, xi_prev, q):
         xi_prev = xi
         xi = phi(xi)
+        iterations += 1
 
-    print("Найденный ответ: {}, значение функции: {}".format(xi, equation(xi)))
+    answer_data: dict = {}
+    answer_data['Ответ']: float = xi
+    answer_data['Значение функции']: float = equation(xi)
+    answer_data['Количество итераций']: float = iterations
+
+    return answer_data
 
 
-def find_lambda(derivate_of_equation: Callable[[float], float], start: float, stop: float):
-    max_derivative = abs(derivate_of_equation(start))
+def find_lambda(equation: Callable[[float], float], start: float, stop: float):
+    max_derivative = abs(derivative.nth(equation, 1, start))
     while start < stop:
-        if max_derivative < abs(derivate_of_equation(start)):
-            max_derivative = abs(derivate_of_equation(start))
+        if max_derivative < abs(derivative.nth(equation, 1, start)):
+            max_derivative = abs(derivative.nth(equation, 1, start))
         start += 0.01
     return -1 / max_derivative
 
@@ -53,26 +62,35 @@ def find_q(equation: Callable[[float], float], start: float, stop: float):
         start += 0.01
     return max_derivative
 
-def solve_system_of_equations(system_of_equation_with_expressed_x, interval, accuracy):
-    current_iteration = 1
-    max_iteration = 100000
 
-    previous_x, previous_y = interval[0], interval[1]
-    current_x = round(system_of_equation_with_expressed_x[0](previous_x, previous_y), 3)
-    current_y = round(system_of_equation_with_expressed_x[1](previous_x, previous_y), 3)
+def solve_system_of_equations(system_of_equations: list[Callable[[float], float]], interval: list[float], accuracy: float):
 
-    while (abs(current_x - previous_x) > accuracy or abs(current_y - previous_y) > accuracy) and current_iteration < max_iteration:
+    iterations = 0
 
-        previous_x, previous_y = current_x, current_y
-        current_x = round(system_of_equation_with_expressed_x[0](previous_x, previous_y), 3)
-        current_y = round(system_of_equation_with_expressed_x[1](previous_x, previous_y), 3)
-        
-        current_iteration += 1
-    
-    if current_iteration == max_iteration:
-        print("На данном интервале ответ не существует")
-    else:
-        print("Найденный ответ: x = {}, y = {}".format(current_x, current_y))
-        print("Значение первой функции: {}".format(system_of_equation_with_expressed_x[0](current_x, current_y)))
-        print("Значение второй функции: {}".format(system_of_equation_with_expressed_x[1](current_x, current_y)))
+    try:
+
+        previous_x, previous_y = interval[0], interval[1]
+
+        current_x = system_of_equations[0](previous_x, previous_y)
+        current_y = system_of_equations[1](previous_x, previous_y)
+
+        while abs(current_x - previous_x) > accuracy or abs(current_y - previous_y) > accuracy:
+
+            previous_x, previous_y = current_x, current_y
+
+            current_x = system_of_equations[0](previous_x, previous_y)
+            current_y = system_of_equations[1](previous_x, previous_y)
+
+            iterations += 1
+    except OverflowError:
+        print("Достаточное условие сходимости не выполняется")
+        return None
+            
+    answer_data = {}
+    answer_data['Ответ'] = [current_x, current_y]
+    answer_data['Значение функции'] = [current_x - system_of_equations[0](previous_x, previous_y), current_y - system_of_equations[1](previous_x, previous_y)]
+    answer_data['Вектор погрешностей'] = [abs(current_x - previous_x), abs(current_y - previous_y)]
+    answer_data['Количество итераций'] = iterations
+
+    return answer_data
         

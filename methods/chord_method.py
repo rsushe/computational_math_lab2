@@ -4,12 +4,15 @@ def solve_equation(equation: Callable[[float], float], interval: list[float], ac
     a: float = interval[0]
     b: float = interval[1]
 
+    if equation(a) * equation(b) > 0:
+        print("На данном интервале ответ не существует")
+        return None
+    
+    iterations: int = 0
+
     current_x: float = (a * equation(b) - b * equation(a)) / (equation(b) - equation(a))
 
-    current_iteration: int = 1
-    max_iteration: int = 1000
-
-    while abs(equation(current_x)) > accuracy and current_iteration < max_iteration:
+    while abs(equation(current_x)) > accuracy:
 
         if equation(a) * equation(current_x) > 0:
             a = current_x
@@ -17,9 +20,12 @@ def solve_equation(equation: Callable[[float], float], interval: list[float], ac
             b = current_x
         
         current_x = (a * equation(b) - b * equation(a)) / (equation(b) - equation(a))
-        current_iteration += 1
 
-    if current_iteration == max_iteration:
-        print("На данном интервале ответ не существует")
-    else:
-        print("Найденный ответ: {}, значение функции: {}".format(current_x, equation(current_x)))
+        iterations += 1
+    
+    answer_data: dict = {}
+    answer_data['Ответ']: float = current_x
+    answer_data['Значение функции']: float = equation(current_x)
+    answer_data['Количество итераций']: int = iterations
+
+    return answer_data
